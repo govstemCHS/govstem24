@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 export default function App() {
+    const [userId, setUserId] = useState('');
+    const [authenticated, setAuthenticated] = useState(false);
     const [connected, setConnected] = useState(false);
     const [connecting, setConnecting] = useState(false);
     const [showDeviceList, setShowDeviceList] = useState(false);
@@ -22,14 +24,24 @@ export default function App() {
     // Mocked list of available Bluetooth devices
     const devices = [
         { id: 'xiao', name: 'Seeed Studio XIAO nRF52840 Sense' },
-        { id: 'demo1', name: 'Airpod Pros' },
-        { id: 'demo2', name: 'AB SHUTTER 3' }
+        { id: 'demo1', name: 'Demo Device A' },
+        { id: 'demo2', name: 'Demo Device B' }
     ];
 
     // Clean up any timer on unmount
     useEffect(() => {
         return () => clearInterval(window.hrInterval);
     }, []);
+
+    // Handle User ID submission
+    const handleLogin = () => {
+        if (userId === '001') {
+            setError('');
+            setAuthenticated(true);
+        } else {
+            setError('Invalid User ID');
+        }
+    };
 
     // “Connect” shows the list of devices
     const connectToDevice = () => {
@@ -42,11 +54,10 @@ export default function App() {
         setSelectedDevice(device);
         setShowDeviceList(false);
         setConnecting(true);
-        // simulate a brief connection handshake
         setTimeout(() => {
             setConnecting(false);
             setConnected(true);
-        }, 1000); // 1s delay
+        }, 1000);
     };
 
     // Start a fake 60s HR test, with a countdown and random final HR
@@ -87,6 +98,30 @@ export default function App() {
     const progress = measuring ? secondsLeft / 60 : 0;
     const dashOffset = circumference - progress * circumference;
 
+    // If not authenticated, show User ID screen
+    if (!authenticated) {
+        return (
+            <div className="container">
+                <div className="card">
+                    <h1 className="title">Enter Product Key</h1>
+                    {/*product key = user id*/}
+                    {error && <p className="error">{error}</p>}
+                    <input
+                        type="password"
+                        className="input"
+                        placeholder="Product Key"
+                        value={userId}
+                        onChange={e => setUserId(e.target.value)}
+                    />
+                    <button onClick={handleLogin} className="button button-blue">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Main health profile UI
     return (
         <div className="container">
             <div className="card">
