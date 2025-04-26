@@ -4,6 +4,9 @@ import './App.css';
 
 export default function App() {
     const [connected, setConnected] = useState(false);
+    const [connecting, setConnecting] = useState(false);
+    const [showDeviceList, setShowDeviceList] = useState(false);
+    const [selectedDevice, setSelectedDevice] = useState(null);
     const [error, setError] = useState('');
     const [userData, setUserData] = useState({
         age: '',
@@ -16,15 +19,34 @@ export default function App() {
     const [measuring, setMeasuring] = useState(false);
     const [secondsLeft, setSecondsLeft] = useState(60);
 
-    // clean up any timer on unmount
+    // Mocked list of available Bluetooth devices
+    const devices = [
+        { id: 'xiao', name: 'Seeed Studio XIAO nRF52840 Sense' },
+        { id: 'demo1', name: 'Airpod Pros' },
+        { id: 'demo2', name: 'AB SHUTTER 3' }
+    ];
+
+    // Clean up any timer on unmount
     useEffect(() => {
         return () => clearInterval(window.hrInterval);
     }, []);
 
-    // “Connect” just flips us into a “connected” demo mode
+    // “Connect” shows the list of devices
     const connectToDevice = () => {
         setError('');
-        setConnected(true);
+        setShowDeviceList(true);
+    };
+
+    // User selects a device, then start fake connecting sequence
+    const selectDevice = device => {
+        setSelectedDevice(device);
+        setShowDeviceList(false);
+        setConnecting(true);
+        // simulate a brief connection handshake
+        setTimeout(() => {
+            setConnecting(false);
+            setConnected(true);
+        }, 1000); // 1s delay
     };
 
     // Start a fake 60s HR test, with a countdown and random final HR
@@ -46,7 +68,6 @@ export default function App() {
         setTimeout(() => {
             clearInterval(window.hrInterval);
             setMeasuring(false);
-            // simulate a realistic resting HR
             const simulatedHR = Math.floor(Math.random() * 20) + 60;
             setRestingHR(simulatedHR);
         }, 60000);
@@ -58,7 +79,7 @@ export default function App() {
         alert('Profile sent:\n' + JSON.stringify(userData, null, 2));
     };
 
-    // SVG timer math (unchanged)
+    // SVG timer math
     const radius = 60,
         stroke = 8;
     const normalizedRadius = radius - stroke * 2;
@@ -70,15 +91,37 @@ export default function App() {
         <div className="container">
             <div className="card">
                 <h1 className="title">Health Profile</h1>
-
                 {error && <p className="error">{error}</p>}
 
-                {!connected ? (
+                {/* Connect / Device Selection / Status */}
+                {!connected && !connecting && !showDeviceList && (
                     <button onClick={connectToDevice} className="button button-blue">
                         Connect to Device
                     </button>
-                ) : (
-                    <p className="status">🔌 Connected</p>
+                )}
+
+                {showDeviceList && (
+                    <div className="device-list">
+                        <p className="label">Select a device:</p>
+                        {devices.map(device => (
+                            <button
+                                key={device.id}
+                                onClick={() => selectDevice(device)}
+                                className="button button-blue"
+                                style={{ marginBottom: '0.5rem' }}
+                            >
+                                {device.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {connecting && selectedDevice && (
+                    <p className="status">🔌 Connecting to {selectedDevice.name}...</p>
+                )}
+
+                {connected && selectedDevice && (
+                    <p className="status">✅ Connected to {selectedDevice.name}</p>
                 )}
 
                 {/* Profile Form */}
