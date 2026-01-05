@@ -18,10 +18,15 @@ export default function App() {
     const [connecting, setConnecting] = useState(false);
     const [error, setError] = useState('');
     
-    // Data State
+    // Data State 
     const [userData, setUserData] = useState({
-        age: '', sex: 'M', height: '', weight: '', fitness: 3,
+        age: '', 
+        sex: 'M', 
+        height: '', 
+        weight: '', 
+        fitness: 3,
     });
+    
     const [liveHR, setLiveHR] = useState(0); 
     const [restingHR, setRestingHR] = useState(null); 
     
@@ -175,7 +180,7 @@ export default function App() {
                 <div className="card">
                     <h1 className="title">HotWatch Login</h1>
                     {error && <p className="error">{error}</p>}
-                    <input type="password" className="input" placeholder="Product Key (001)" 
+                    <input type="password" className="input" placeholder="Product Key" 
                            value={userId} onChange={e => setUserId(e.target.value)} />
                     <button onClick={handleLogin} className="button button-blue">Enter</button>
                 </div>
@@ -201,15 +206,41 @@ export default function App() {
                     </div>
                 )}
 
-                {/* PROFILE FORM */}
+                {/* FULL PROFILE FORM */}
                 <div className="form-grid">
                     <div className="form-group">
-                        <label>Age</label>
-                        <input type="number" value={userData.age} onChange={e => setUserData({...userData, age: e.target.value})} />
+                        <label className="label">Age</label>
+                        <input type="number" className="input" value={userData.age} 
+                               onChange={e => setUserData({...userData, age: e.target.value})} />
                     </div>
+
                     <div className="form-group">
-                        <label>Weight (kg)</label>
-                        <input type="number" value={userData.weight} onChange={e => setUserData({...userData, weight: e.target.value})} />
+                        <label className="label">Sex</label>
+                        <select className="input" value={userData.sex} 
+                                onChange={e => setUserData({ ...userData, sex: e.target.value })}>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="label">Height (cm)</label>
+                        <input type="number" className="input" value={userData.height} 
+                               onChange={e => setUserData({ ...userData, height: e.target.value })} />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="label">Weight (kg)</label>
+                        <input type="number" className="input" value={userData.weight} 
+                               onChange={e => setUserData({...userData, weight: e.target.value})} />
+                    </div>
+
+                    <div className="form-group full-width">
+                        <label className="label">Fitness Level (1-5)</label>
+                        <input type="range" className="input" min="1" max="5" 
+                               value={userData.fitness} 
+                               onChange={e => setUserData({ ...userData, fitness: +e.target.value })} />
+                        <div style={{textAlign: 'center', fontSize: '0.9rem'}}>{userData.fitness}</div>
                     </div>
                 </div>
 
@@ -220,27 +251,27 @@ export default function App() {
                         {measuring ? 'Measuring...' : 'Start 60s Analysis'}
                     </button>
                     
-                    <div className="circle-container">
+                    <div className="circle-container" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
                         {measuring ? (
                             <svg height={radius * 2} width={radius * 2}>
                                 <circle stroke="#e5e7eb" fill="transparent" strokeWidth={stroke} r={normalizedRadius} cx={radius} cy={radius} />
                                 <circle stroke="#3b82f6" fill="transparent" strokeWidth={stroke} 
                                         strokeDasharray={`${circumference} ${circumference}`} 
-                                        style={{ strokeDashoffset }} 
+                                        style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }} 
                                         r={normalizedRadius} cx={radius} cy={radius} 
                                         transform={`rotate(-90 ${radius} ${radius})`} />
-                                <text x="50%" y="50%" dy=".3em" textAnchor="middle" className="timer-text">{secondsLeft}</text>
+                                <text x="50%" y="50%" dy=".3em" textAnchor="middle" className="timer-text" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{secondsLeft}</text>
                             </svg>
                         ) : restingHR && (
-                            <div className="result-box">
-                                <p>Resting HR</p>
-                                <h2>{restingHR}</h2>
+                            <div className="result-box" style={{ textAlign: 'center' }}>
+                                <p style={{ margin: 0, color: '#6b7280' }}>Resting HR</p>
+                                <h2 style={{ margin: 0, fontSize: '2rem', color: '#111827' }}>{restingHR}</h2>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <button onClick={sendUserData} disabled={!connected} className="button button-indigo">
+                <button onClick={sendUserData} disabled={!connected} className="button button-indigo" style={{ marginTop: '20px' }}>
                     Sync Profile to Device
                 </button>
             </div>
